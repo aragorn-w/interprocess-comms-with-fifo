@@ -32,10 +32,7 @@ int main() {
 		// TODO:
 		// read requests from serverFIFO
 
-
-
-
-
+		read(server, &req, sizeof(struct message));
 
 		printf("Received a request from %s to send the message %s to %s.\n",req.source,req.msg,req.target);
 
@@ -43,15 +40,18 @@ int main() {
 		// open target FIFO and write the whole message struct to the target FIFO
 		// close target FIFO after writing the message
 
+		char targetFifo[50];
+		snprintf(targetFifo, sizeof(targetFifo), "%s", req.target);
+		target = open(targetFifo, O_WRONLY);
 
+		if (write(target, &req, sizeof(struct message)) < 0) {
+			perror("Failed to write to target FIFO");
+		}
 
-
-
-
-
-	}
+		close(target);
+    }
+	
 	close(server);
 	close(dummyfd);
 	return 0;
 }
-
